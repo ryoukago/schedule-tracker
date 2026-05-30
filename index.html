@@ -203,7 +203,7 @@ header h1{
 
 let data = [];
 
-// ✅ dropdown
+// ✅ TIME DROPDOWN
 const times = [];
 for(let h=0; h<24; h++){
   for(let m of [0,30]){
@@ -222,7 +222,7 @@ times.forEach((t,i)=>{
   end.add(new Option(t,i));
 });
 
-// ✅ upload
+// ✅ UPLOAD
 const drop = document.getElementById("drop-zone");
 const input = document.getElementById("file-input");
 
@@ -239,7 +239,8 @@ input.addEventListener("change",(e)=>{
   handle(e.target.files[0]);
 });
 
-// ✅ parse CSV
+
+// ✅ PARSE CSV
 function handle(file){
   if(!file) return;
 
@@ -271,11 +272,13 @@ function handle(file){
   reader.readAsText(file);
 }
 
+
 function removeFile(){
   data = [];
   document.getElementById("file-list").innerHTML = "";
   document.getElementById("output").innerHTML = "";
 }
+
 
 // ✅ APPLY FILTER
 document.getElementById("apply").addEventListener("click", applyFilter);
@@ -287,7 +290,6 @@ function applyFilter(){
     return;
   }
 
-  // ✅ YOUR TARGET SCHEDULES
   const allowedSchedules = [
     "CRG - Part D",
     "PA Fax Only",
@@ -299,7 +301,6 @@ function applyFilter(){
 
   data.forEach(row => {
 
-    // ✅ FILTER ONLY TARGET SCHEDULES
     if(!allowedSchedules.includes(row["Scheduled Activities"])) return;
 
     const id = row["Agent ID"];
@@ -314,14 +315,11 @@ function applyFilter(){
       };
     }
 
-    // ✅ OPEN MINUTES
     let open = Number(row["Min. out Adherence"] || 0);
     employees[id].Open += open;
   });
 
   let all = Object.values(employees);
-
-  // ✅ ONLY OPEN EMPLOYEES
   let openEmployees = all.filter(e => e.Open > 0);
 
   const startVal = start.options[start.selectedIndex].text;
@@ -330,14 +328,13 @@ function applyFilter(){
   renderDashboard(openEmployees, all.length, startVal, endVal);
 }
 
-// ✅ FINAL DASHBOARD UI
+
+// ✅ DASHBOARD RENDER
 function renderDashboard(list, total, startVal, endVal){
 
   let html = `
 
-  <!-- ✅ STATS -->
   <div class="card" style="display:flex; gap:15px;">
-    
     <div style="flex:1;">
       <div class="card-title">OPEN EMPLOYEES</div>
       <div style="color:var(--accent); font-size:22px;">${list.length}</div>
@@ -354,20 +351,28 @@ function renderDashboard(list, total, startVal, endVal){
         ${startVal} – ${endVal}
       </div>
     </div>
-
   </div>
 
-  <!-- ✅ TABLE SECTION -->
   <div class="card">
 
     <div class="card-title">03 / OPEN EMPLOYEES</div>
 
-    <div style="margin-bottom:10px;">
-      <b>${list.length}</b> employees with open schedule
+    <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+
+      <div style="flex:1;">
+        <b>${list.length}</b> employees with open schedule
+      </div>
+
+      <input id="searchBox" placeholder="Search name, EID, MSID..."
+        style="padding:8px; border:1px solid var(--border); border-radius:8px;" />
+
+      <button onclick="copyAll()">📋 Copy All</button>
+      <button onclick="copySelected()">📄 Copy Selected</button>
+      <button onclick="exportCSV()">⬇ Export CSV</button>
+
     </div>
   `;
 
-  // ✅ EMPTY STATE
   if(list.length === 0){
 
     html += `
@@ -382,6 +387,7 @@ function renderDashboard(list, total, startVal, endVal){
     html += `
       <table>
         <tr>
+          <td></td>
           <td>#</td>
           <td>EID</td>
           <td>NAME</td>
@@ -395,6 +401,7 @@ function renderDashboard(list, total, startVal, endVal){
     list.forEach((e,i)=>{
       html += `
         <tr>
+          <td><input type="checkbox" class="rowCheck"></td>
           <td>${i+1}</td>
           <td>${e.EID}</td>
           <td>${e.Name}</td>
@@ -414,8 +421,78 @@ function renderDashboard(list, total, startVal, endVal){
   document.getElementById("output").innerHTML = html;
 }
 
+
+// ✅ SEARCH
+document.addEventListener("input", function(e){
+  if(e.target.id === "searchBox"){
+    const val = e.target.value.toLowerCase();
+    document.querySelectorAll("table tr").forEach((row,i)=>{
+      if(i === 0) return;
+      row.style.display = row.innerText.toLowerCase().includes(val) ? "" : "none";
+    });
+  }
+});
+
+
+// ✅ COPY ALL
+function copyAll(){
+  let text = "";
+  document.querySelectorAll("table tr").forEach((row,i)=>{
+    if(i === 0) return;
+    text += row.innerText + "\n";
+  });
+  navigator.clipboard.writeText(text);
+  alert("Copied all ✅");
+}
+
+
+// ✅ COPY SELECTED
+function copySelected(){
+  let text = "";
+
+  document.querySelectorAll(".rowCheck").forEach((check)=>{
+    if(check.checked){
+      text += check.closest("tr").innerText + "\n";
+    }
+  });
+
+  if(text === ""){
+    alert("No rows selected ❌");
+    return;
+  }
+
+  navigator.clipboard.writeText(text);
+  alert("Copied selected ✅");
+}
+
+
+// ✅ EXPORT CSV
+function exportCSV(){
+
+  let csv = "EID,NAME,MSID,SUPERVISOR,OPEN\n";
+
+  document.querySelectorAll("table tr").forEach((row,i)=>{
+    if(i === 0) return;
+
+    const cols = row.querySelectorAll("td");
+
+    csv += [
+      cols[2]?.innerText,
+      cols[3]?.innerText,
+      cols[4]?.innerText,
+      cols[5]?.innerText,
+      cols[6]?.innerText
+    ].join(",") + "\n";
+  });
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "open_employees.csv";
+  a.click();
+}
+
 </script>
-
-
+  
 </body>
 </html>
