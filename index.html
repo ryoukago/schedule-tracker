@@ -201,6 +201,8 @@ header h1{
 
 <script>
 
+let data = [];
+
 // ✅ dropdown
 const times = [];
 for(let h=0; h<24; h++){
@@ -220,15 +222,13 @@ times.forEach((t,i)=>{
   end.add(new Option(t,i));
 });
 
-// ✅ upload logic
+// ✅ upload
 const drop = document.getElementById("drop-zone");
 const input = document.getElementById("file-input");
 
 drop.addEventListener("click",()=>input.click());
 
-drop.addEventListener("dragover",(e)=>{
-  e.preventDefault();
-});
+drop.addEventListener("dragover",(e)=> e.preventDefault());
 
 drop.addEventListener("drop",(e)=>{
   e.preventDefault();
@@ -239,11 +239,10 @@ input.addEventListener("change",(e)=>{
   handle(e.target.files[0]);
 });
 
-// ✅ FILE HANDLE
+// ✅ parse CSV
 function handle(file){
   if(!file) return;
 
-  // ✅ show file chip
   document.getElementById("file-list").innerHTML = `
     <div class="file-chip">
       📄 ${file.name}
@@ -254,42 +253,169 @@ function handle(file){
   const reader = new FileReader();
 
   reader.onload = function(e){
-    displayCSV(e.target.result);
+    const rows = e.target.result.trim().split("\n");
+
+    const headers = rows[0].split(",");
+    data = rows.slice(1).map(r=>{
+      const values = r.split(",");
+      let obj = {};
+      headers.forEach((h,i)=>{
+        obj[h.trim()] = values[i]?.trim();
+      });
+      return obj;
+    });
+
+    alert("✅ File loaded. Click Apply.");
   };
 
   reader.readAsText(file);
 }
 
 function removeFile(){
+  data = [];
   document.getElementById("file-list").innerHTML = "";
   document.getElementById("output").innerHTML = "";
 }
 
-// ✅ DISPLAY CSV
-function displayCSV(text){
+// ✅ APPLY FILTER
+document.getElementById("apply").addEventListener("click", applyFilter);
 
-  const rows = text.split("\n");
+function applyFilter(){
 
-  let html = `
-    <div class="card">
-      <div class="card-title">03 / RESULTS</div>
-      <table>
-  `;
+  if(data.length === 0){
+    alert("Upload CSV first");
+    return;
+  }
 
-  rows.forEach(r=>{
-    html += "<tr>";
-    r.split(",").forEach(c=>{
-      html += `<td>${c}</td>`;
-    });
-    html += "</tr>";
+  // ✅ YOUR TARGET SCHEDULES
+  const allowedSchedules = [
+    "CRG - Part D",
+    "PA Fax Only",
+    "PA OGS Fax",
+    "Time off Phone (CRG)"
+  ];
+
+  let employees = {};
+
+  data.forEach(row => {
+
+    // ✅ FILTER ONLY TARGET SCHEDULES
+    if(!allowedSchedules.includes(row["Scheduled Activities"])) return;
+
+    const id = row["Agent ID"];
+
+    if(!employees[id]){
+      employees[id] = {
+        EID: id,
+        Name: row["Agent Name"],
+        MSID: row["Agent Data Value"],
+        Supervisor: row["Entity Name"],
+        Open: 0
+      };
+    }
+
+    // ✅ OPEN MINUTES
+    let open = Number(row["Min. out Adherence"] || 0);
+    employees[id].Open += open;
   });
 
-  html += "</table></div>";
+  let all = Object.values(employees);
+
+  // ✅ ONLY OPEN EMPLOYEES
+  let openEmployees = all.filter(e => e.Open > 0);
+
+  const startVal = start.options[start.selectedIndex].text;
+  const endVal = end.options[end.selectedIndex].text;
+
+  renderDashboard(openEmployees, all.length, startVal, endVal);
+}
+
+// ✅ FINAL DASHBOARD UI
+function renderDashboard(list, total, startVal, endVal){
+
+  let html = `
+
+  <!-- ✅ STATS -->
+  <div class="card" style="display:flex; gap:15px;">
+    
+    <div style="flex:1;">
+      <div class="card-title">OPEN EMPLOYEES</div>
+      <div style="color:var(--accent); font-size:22px;">${list.length}</div>
+    </div>
+
+    <div style="flex:1;">
+      <div class="card-title">TOTAL IN RANGE</div>
+      <div style="font-size:22px;">${total}</div>
+    </div>
+
+    <div style="flex:1;">
+      <div class="card-title">TIME RANGE</div>
+      <div style="color:var(--accent); font-weight:700;">
+        ${startVal} – ${endVal}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ✅ TABLE SECTION -->
+  <div class="card">
+
+    <div class="card-title">03 / OPEN EMPLOYEES</div>
+
+    <div style="margin-bottom:10px;">
+      <b>${list.length}</b> employees with open schedule
+    </div>
+  `;
+
+  // ✅ EMPTY STATE
+  if(list.length === 0){
+
+    html += `
+      <div style="text-align:center; padding:40px; color:var(--muted);">
+        <div style="font-size:32px;">🔍</div>
+        No employees with an open schedule in this range.
+      </div>
+    `;
+
+  } else {
+
+    html += `
+      <table>
+        <tr>
+          <td>#</td>
+          <td>EID</td>
+          <td>NAME</td>
+          <td>MSID</td>
+          <td>SUPERVISOR</td>
+          <td>PEAK OPEN (MIN)</td>
+          <td>STATUS</td>
+        </tr>
+    `;
+
+    list.forEach((e,i)=>{
+      html += `
+        <tr>
+          <td>${i+1}</td>
+          <td>${e.EID}</td>
+          <td>${e.Name}</td>
+          <td>${e.MSID || "-"}</td>
+          <td>${e.Supervisor || "-"}</td>
+          <td>${e.Open}</td>
+          <td style="color:var(--accent);">Open</td>
+        </tr>
+      `;
+    });
+
+    html += "</table>";
+  }
+
+  html += "</div>";
 
   document.getElementById("output").innerHTML = html;
 }
 
 </script>
+
 
 </body>
 </html>
