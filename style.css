@@ -97,6 +97,12 @@ main {
   cursor: pointer;
 }
 
+
+select {
+  cursor: pointer;
+}
+
+
 /* Button */
 button {
   background: #f4a261;
