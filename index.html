@@ -171,7 +171,7 @@ header h1{
   <div class="card-title">01 / UPLOAD CSV FILES</div>
 
   <div id="drop-zone">
-    <input type="file" id="file-input" accept=".csv" hidden>
+    <input type="file" id="file-input" accept=".csv,.xlsx" hidden>
 
     <div style="font-size:30px;">📂</div>
     <div style="font-weight:700; margin-top:10px;">
@@ -202,6 +202,8 @@ header h1{
 
 </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  
 <script>
 
 let data = [];
@@ -254,25 +256,78 @@ function handle(file){
     </div>
   `;
 
-  const reader = new FileReader();
+  const ext = file.name.split('.').pop().toLowerCase();
 
-  reader.onload = function(e){
-    const rows = e.target.result.trim().split("\n");
+  // ✅ HANDLE CSV
+  if(ext === "csv"){
+    const reader = new FileReader();
 
-    const headers = rows[0].split(",");
-    data = rows.slice(1).map(r=>{
-      const values = r.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)?.map(v => v.replace(/^"|"$/g, ""));
-      let obj = {};
-      headers.forEach((h,i)=>{
-        obj[h.trim()] = values[i]?.trim();
+    reader.onload = function(e){
+      const rows = e.target.result.trim().split("\n");
+
+      const parseCSVLine = (line) => {
+        const result = [];
+        let current = "";
+        let insideQuotes = false;
+
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+
+          if (char === '"') {
+            insideQuotes = !insideQuotes;
+          } else if (char === ',' && !insideQuotes) {
+            result.push(current.trim());
+            current = "";
+          } else {
+            current += char;
+          }
+        }
+
+        result.push(current.trim());
+        return result;
+      };
+
+      const headers = parseCSVLine(rows[0]);
+
+      data = rows.slice(1).map(r => {
+        const values = parseCSVLine(r);
+
+        let obj = {};
+        headers.forEach((h,i)=>{
+          obj[h.trim()] = values[i]?.replace(/^"|"$/g, "").trim();
+        });
+
+        return obj;
       });
-      return obj;
-    });
 
-    alert("✅ File loaded. Click Apply.");
-  };
+      alert("✅ CSV loaded. Click Apply.");
+    };
 
-  reader.readAsText(file);
+    reader.readAsText(file);
+  }
+
+  // ✅ HANDLE XLSX
+  else if(ext === "xlsx"){
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+      const workbook = XLSX.read(e.target.result, { type: "binary" });
+
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+
+      // ✅ THIS converts Excel → JSON
+      data = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+      alert("✅ Excel file loaded. Click Apply.");
+    };
+
+    reader.readAsBinaryString(file);
+  }
+
+  else{
+    alert("Unsupported file type ❌");
+  }
 }
 
 
@@ -297,7 +352,7 @@ console.log(Object.keys(data[0]));
   console.log([...new Set(data.map(r => r["Scheduled Activities"]))]);
   
     let result = data.filter(row => {
-  const act = row["Scheduled Activities"] || "";
+  const act = (row["Scheduled Activities"] || "").toLowerCase();
 
   return act.includes("fax") || 
          act.includes("crg") || 
