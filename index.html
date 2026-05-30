@@ -80,23 +80,26 @@ header{
 .filter-row{
   display:flex;
   gap:15px;
-  align-items:center;
+  align-items:flex-end;
+  flex-wrap:wrap;
 }
 
 select{
   background:var(--surface2);
   border:1px solid var(--border);
   border-radius:8px;
-  padding:10px;
+  padding:12px;
+  flex:1;                 /* ✅ makes it wide */
 }
 
 button{
   background:var(--accent);
   color:white;
   border:none;
-  padding:10px 20px;
+  padding:12px 24px;
   border-radius:8px;
   cursor:pointer;
+  white-space:nowrap;     /* ✅ prevents wrapping */
 }
 
 button:hover{
