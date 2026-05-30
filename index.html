@@ -303,20 +303,21 @@ function applyFilter(){
          act.includes("CRG") || 
          act.includes("OGS") || 
          act.includes("Time off");
-});   
-    
-  let mapped = result.map(row => ({
-    EID: row["Agent ID"],
-    Name: row["Agent Name"],
-    Activity: row["Scheduled Activities"],
-    Start: row["Start Time"] || row["Start"],
-    End: row["End Time"] || row["End"]
-  }));
+});
+
+let mapped = result.map(row => ({
+  EID: row["Agent ID"],
+  Name: row["Agent Name"],
+  Activity: row["Scheduled Activities"],
+  ScheduledTime: row["Scheduled Time"],
+}));
+
 
   const startVal = start.options[start.selectedIndex].text;
   const endVal = end.options[end.selectedIndex].text;
 
   renderDashboard(mapped, mapped.length, startVal, endVal);
+
 }
 
 
@@ -379,8 +380,8 @@ function renderDashboard(list, total, startVal, endVal){
           <td>EID</td>
           <td>NAME</td>
           <td>ACTIVITY</td>
-          <td>START</td>
-          <td>END</td>
+          <td>SCHEDULED</td>
+          <td>ACTUAL</td>
         </tr>
     `;
 
@@ -392,8 +393,7 @@ function renderDashboard(list, total, startVal, endVal){
           <td>${e.EID}</td>
           <td>${e.Name}</td>
           <td>${e.Activity}</td>
-          <td>${e.Start || "-"}</td>
-          <td>${e.End || "-"}</td>
+          <td>${e.ScheduledTime || "-"}</td>
         </tr>
       `;
     });
