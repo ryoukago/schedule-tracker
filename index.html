@@ -261,7 +261,7 @@ function handle(file){
 
     const headers = rows[0].split(",");
     data = rows.slice(1).map(r=>{
-      const values = r.split(",");
+      const values = r.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)?.map(v => v.replace(/^"|"$/g, ""));
       let obj = {};
       headers.forEach((h,i)=>{
         obj[h.trim()] = values[i]?.trim();
