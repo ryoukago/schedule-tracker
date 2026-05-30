@@ -225,12 +225,12 @@ times.forEach((t,i)=>{
   end.add(new Option(t,i));
 });
 
+
 // ✅ UPLOAD
 const drop = document.getElementById("drop-zone");
 const input = document.getElementById("file-input");
 
 drop.addEventListener("click",()=>input.click());
-
 drop.addEventListener("dragover",(e)=> e.preventDefault());
 
 drop.addEventListener("drop",(e)=>{
@@ -276,6 +276,7 @@ function handle(file){
 }
 
 
+// ✅ REMOVE FILE
 function removeFile(){
   data = [];
   document.getElementById("file-list").innerHTML = "";
@@ -300,35 +301,20 @@ function applyFilter(){
     "Time off Phone (CRG)"
   ];
 
-  let employees = {};
-
-  data.forEach(row => {
-
-    if(!allowedSchedules.includes(row["Scheduled Activities"])) return;
-
-    const id = row["Agent ID"];
-
-    if(!employees[id]){
-      employees[id] = {
-        EID: id,
-        Name: row["Agent Name"],
-        MSID: row["Agent Data Value"],
-        Supervisor: row["Entity Name"],
-        Open: 0
-      };
-    }
-
-    let open = Number(row["Min. out Adherence"] || 0);
-    employees[id].Open += open;
-  });
-
-  let all = Object.values(employees);
-  let openEmployees = all.filter(e => e.Open > 0);
+  let result = data
+    .filter(row => allowedSchedules.includes(row["Scheduled Activities"]))
+    .map(row => ({
+      EID: row["Agent ID"],
+      Name: row["Agent Name"],
+      Activity: row["Scheduled Activities"],
+      Start: row["Start Time"] || row["Start"],
+      End: row["End Time"] || row["End"]
+    }));
 
   const startVal = start.options[start.selectedIndex].text;
   const endVal = end.options[end.selectedIndex].text;
 
-  renderDashboard(openEmployees, all.length, startVal, endVal);
+  renderDashboard(result, result.length, startVal, endVal);
 }
 
 
@@ -339,13 +325,8 @@ function renderDashboard(list, total, startVal, endVal){
 
   <div class="card" style="display:flex; gap:15px;">
     <div style="flex:1;">
-      <div class="card-title">OPEN EMPLOYEES</div>
+      <div class="card-title">MATCHING ROWS</div>
       <div style="color:var(--accent); font-size:22px;">${list.length}</div>
-    </div>
-
-    <div style="flex:1;">
-      <div class="card-title">TOTAL IN RANGE</div>
-      <div style="font-size:22px;">${total}</div>
     </div>
 
     <div style="flex:1;">
@@ -358,15 +339,15 @@ function renderDashboard(list, total, startVal, endVal){
 
   <div class="card">
 
-    <div class="card-title">03 / OPEN EMPLOYEES</div>
+    <div class="card-title">03 / FILTERED SCHEDULE</div>
 
     <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
 
       <div style="flex:1;">
-        <b>${list.length}</b> employees with open schedule
+        <b>${list.length}</b> matching schedule rows
       </div>
 
-      <input id="searchBox" placeholder="Search name, EID, MSID..."
+      <input id="searchBox" placeholder="Search name, EID..."
         style="padding:8px; border:1px solid var(--border); border-radius:8px;" />
 
       <button onclick="copyAll()">📋 Copy All</button>
@@ -381,7 +362,7 @@ function renderDashboard(list, total, startVal, endVal){
     html += `
       <div style="text-align:center; padding:40px; color:var(--muted);">
         <div style="font-size:32px;">🔍</div>
-        No employees with an open schedule in this range.
+        No matching scheduled activities.
       </div>
     `;
 
@@ -394,10 +375,9 @@ function renderDashboard(list, total, startVal, endVal){
           <td>#</td>
           <td>EID</td>
           <td>NAME</td>
-          <td>MSID</td>
-          <td>SUPERVISOR</td>
-          <td>PEAK OPEN (MIN)</td>
-          <td>STATUS</td>
+          <td>ACTIVITY</td>
+          <td>START</td>
+          <td>END</td>
         </tr>
     `;
 
@@ -408,10 +388,9 @@ function renderDashboard(list, total, startVal, endVal){
           <td>${i+1}</td>
           <td>${e.EID}</td>
           <td>${e.Name}</td>
-          <td>${e.MSID || "-"}</td>
-          <td>${e.Supervisor || "-"}</td>
-          <td>${e.Open}</td>
-          <td style="color:var(--accent);">Open</td>
+          <td>${e.Activity}</td>
+          <td>${e.Start || "-"}</td>
+          <td>${e.End || "-"}</td>
         </tr>
       `;
     });
@@ -472,7 +451,7 @@ function copySelected(){
 // ✅ EXPORT CSV
 function exportCSV(){
 
-  let csv = "EID,NAME,MSID,SUPERVISOR,OPEN\n";
+  let csv = "EID,NAME,ACTIVITY,START,END\n";
 
   document.querySelectorAll("table tr").forEach((row,i)=>{
     if(i === 0) return;
@@ -491,7 +470,7 @@ function exportCSV(){
   const blob = new Blob([csv], { type: "text/csv" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "open_employees.csv";
+  a.download = "filtered_schedule.csv";
   a.click();
 }
 
