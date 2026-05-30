@@ -25,15 +25,16 @@ body{
   margin:0;
 }
 
-main{
-  max-width:900px;
-  margin:0 auto;
-  padding:30px;
+/* CENTER LAYOUT */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
+/* HEADER */
 header{
   border-bottom:2px solid var(--border);
-  padding:20px;
+  padding:20px 40px;
   display:flex;
   align-items:center;
   gap:10px;
@@ -46,52 +47,39 @@ header{
   border-radius:50%;
 }
 
-.header-sub{
-  margin-left:auto;
-  font-size:12px;
-  color:var(--muted);
-}
-
+/* CARD */
 .card{
   background:var(--surface);
   border:1px solid var(--border);
   border-radius:10px;
   padding:25px;
-  margin-top:20px;
+  margin:30px 0;
 }
 
-.card-title{
-  font-size:11px;
-  letter-spacing:2px;
-  color:var(--muted);
-  margin-bottom:15px;
-}
-
+/* DROP ZONE */
 #drop-zone{
   border:2px dashed var(--border);
-  padding:40px;
+  padding:50px;
   text-align:center;
   border-radius:10px;
   cursor:pointer;
+  transition:0.2s;
 }
 
-.filter-row{
+#drop-zone:hover,
+#drop-zone.dragover{
+  border-color:var(--accent);
+  background:rgba(232,114,26,0.05);
+}
+
+/* FILTER ROW */
+.filter-row {
   display:flex;
   gap:15px;
-  align-items:end;
+  align-items:center;
 }
 
-.field{
-  display:flex;
-  flex-direction:column;
-}
-
-.field label{
-  font-size:11px;
-  margin-bottom:5px;
-  color:var(--muted);
-}
-
+/* SELECT */
 select{
   background:var(--surface2);
   border:1px solid var(--border);
@@ -100,6 +88,7 @@ select{
   cursor:pointer;
 }
 
+/* BUTTON */
 button{
   background:var(--accent);
   color:white;
@@ -107,6 +96,10 @@ button{
   padding:10px 20px;
   border-radius:8px;
   cursor:pointer;
+}
+
+button:hover{
+  background:var(--accent2);
 }
 </style>
 
@@ -117,65 +110,114 @@ button{
 <header>
   <span class="logo-dot"></span>
   <h1>Schedule Open Tracker</h1>
-  <span class="header-sub">Roster-matched · 30-min intervals</span>
 </header>
 
 <main>
 
 <div class="card">
-  <div class="card-title">01 / UPLOAD SCHEDULE CSV FILES</div>
+  <h3>Upload CSV Files</h3>
 
   <div id="drop-zone">
-    <input type="file" id="file-input" accept=".csv" hidden>
+    <input type="file" id="file-input" accept=".csv" style="display:none;">
 
-    <div style="font-size:28px;">📂</div>
+    <div style="font-size:30px;">📂</div>
     <div style="font-weight:700; margin-top:10px;">
-      Drop CSV files here, or click to browse
+      Drop CSV files here or click to browse
     </div>
-    <div style="font-size:12px; color:var(--muted);">
-      Multiple files supported · Columns: Date, Agent ID, Agent Name
+    <div style="font-size:12px; color:#9a6b3c;">
+      CSV only · Multiple files supported
     </div>
+
   </div>
 </div>
 
 <div class="card">
-  <div class="card-title">02 / FILTER BY TIME RANGE</div>
+  <h3>Filter Time</h3>
 
   <div class="filter-row">
-    <div class="field">
-      <label>START TIME</label>
-      <select id="start"></select>
-    </div>
-
-    <div class="field">
-      <label>END TIME</label>
-      <select id="end"></select>
-    </div>
-
-    <button id="apply">Apply Filter</button>
+    <select id="start"></select>
+    <select id="end"></select>
+    <button id="apply">Apply</button>
   </div>
 </div>
+
+<div id="output"></div>
 
 </main>
 
 <script>
-const times=[];
-for(let h=0;h<24;h++){
+
+// dropdown values
+const times = [];
+for(let h=0; h<24; h++){
   for(let m of [0,30]){
-    let ap=h<12?"AM":"PM";
-    let hr=h%12||12;
-    let min=m===0?"00":"30";
-    times.push(`${hr}:${min} ${ap}`);
+    let ampm = h < 12 ? "AM" : "PM";
+    let hr = h % 12 || 12;
+    let min = m===0 ? "00":"30";
+    times.push(`${hr}:${min} ${ampm}`);
   }
 }
 
-const start=document.getElementById("start");
-const end=document.getElementById("end");
+const start = document.getElementById("start");
+const end = document.getElementById("end");
 
 times.forEach((t,i)=>{
   start.add(new Option(t,i));
   end.add(new Option(t,i));
 });
+
+// drag drop
+const drop = document.getElementById("drop-zone");
+const input = document.getElementById("file-input");
+
+drop.addEventListener("click",()=>input.click());
+
+drop.addEventListener("dragover",(e)=>{
+  e.preventDefault();
+  drop.classList.add("dragover");
+});
+
+drop.addEventListener("dragleave",()=>{
+  drop.classList.remove("dragover");
+});
+
+drop.addEventListener("drop",(e)=>{
+  e.preventDefault();
+  drop.classList.remove("dragover");
+  handle(e.dataTransfer.files[0]);
+});
+
+input.addEventListener("change",(e)=>{
+  handle(e.target.files[0]);
+});
+
+function handle(file){
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    const text = e.target.result;
+    const rows = text.split("\n");
+
+    let html = "<table border='1'>";
+
+    rows.forEach(r=>{
+      html += "<tr>";
+      r.split(",").forEach(c=>{
+        html += `<td>${c}</td>`;
+      });
+      html += "</tr>";
+    });
+
+    html += "</table>";
+
+    document.getElementById("output").innerHTML = html;
+  };
+
+  reader.readAsText(file);
+}
+
 </script>
 
 </body>
