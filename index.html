@@ -117,3 +117,66 @@ for(let h=0; h<24; h++){
 }
 
 const start = document.getElementById("start");
+const end = document.getElementById("end");
+
+times.forEach((t,i)=>{
+  start.add(new Option(t,i));
+  end.add(new Option(t,i));
+});
+
+// drag drop
+const drop = document.getElementById("drop-zone");
+const input = document.getElementById("file-input");
+
+drop.addEventListener("click",()=>input.click());
+
+drop.addEventListener("dragover",(e)=>{
+  e.preventDefault();
+  drop.classList.add("dragover");
+});
+
+drop.addEventListener("dragleave",()=>{
+  drop.classList.remove("dragover");
+});
+
+drop.addEventListener("drop",(e)=>{
+  e.preventDefault();
+  drop.classList.remove("dragover");
+  handle(e.dataTransfer.files[0]);
+});
+
+input.addEventListener("change",(e)=>{
+  handle(e.target.files[0]);
+});
+
+function handle(file){
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    const text = e.target.result;
+    const rows = text.split("\n");
+
+    let html = "<table border='1'>";
+
+    rows.forEach(r=>{
+      html += "<tr>";
+      r.split(",").forEach(c=>{
+        html += `<td>${c}</td>`;
+      });
+      html += "</tr>";
+    });
+
+    html += "</table>";
+
+    document.getElementById("output").innerHTML = html;
+  };
+
+  reader.readAsText(file);
+}
+
+</script>
+
+</body>
+</html>
