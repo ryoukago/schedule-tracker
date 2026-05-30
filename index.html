@@ -35,6 +35,13 @@ header{
   border-bottom:2px solid var(--border);
   padding:20px;
   display:flex;
+  justify-content:center;   /* ✅ center everything */
+  align-items:center;
+  position:relative;        /* needed for optional right text */
+}
+
+.header-center{
+  display:flex;
   align-items:center;
   gap:10px;
 }
@@ -131,8 +138,10 @@ tr:first-child{
 <body>
 
 <header>
-  <span class="logo-dot"></span>
-  <h1>Schedule Open Tracker</h1>
+  <div class="header-center">
+    <span class="logo-dot"></span>
+    <h1>Schedule Open Tracker</h1>
+  </div>
 </header>
 
 <main>
