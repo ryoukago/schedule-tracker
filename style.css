@@ -1,0 +1,61 @@
+/* Page background */
+body {
+  font-family: Arial, sans-serif;
+  background: #f6efe6;
+  color: #a05a00;
+  margin: 0;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 50px;
+  border-bottom: 1px solid #e0c7a5;
+}
+
+h1 {
+  font-size: 22px;
+}
+
+header p {
+  font-size: 14px;
+  color: #a77b4a;
+}
+
+/* Main layout */
+main {
+  padding: 40px;
+}
+
+/* Card sections */
+.card {
+  background: #f3e3cf;
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+}
+
+.card h3 {
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: #a77b4a;
+}
+
+/* Upload box */
+.upload-box {
+  border: 2px dashed #e0b88c;
+  padding: 50px;
+  text-align: center;
+  border-radius: 12px;
+  background: #f7ecdd;
+}
+
+.upload-box .icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.upload-box p {
+  font-size: 16px;
+  font-weight: bold;
