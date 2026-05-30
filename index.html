@@ -16,17 +16,20 @@
     <section class="card">
       <h3>01 / UPLOAD SCHEDULE CSV FILES</h3>
 
-      <div class="upload-box">
-        <label for="csvFile" class="custom-upload">
-          <div class="icon">📂</div>
-          <p><strong>Drop CSV files here, or click to browse</strong></p>
-          <span>CSV only • Columns: Date, Agent ID, Agent Name</span>
-        </label>
+      
+  <div class="upload-box" id="drop-area">
+    <label for="csvFile" class="custom-upload">
+      <div class="icon">📂</div>
+      <p><strong>Drop CSV files here, or click to browse</strong></p>
+      <span>CSV only • Columns: Date, Agent ID, Agent Name</span>
+    </label>
 
-        <input type="file" id="csvFile" acceept=".csv" hidden>
-      </div>
-      <div id="output">
-      </div>
+    <input type="file" id="csvFile" accept=".csv" hidden>
+    </div>
+      
+    <div id="output">
+  </div>
+
     </section>
     <section class="card">
   <h3>02 / FILTER BY TIME RANGE</h3>
