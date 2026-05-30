@@ -43,7 +43,9 @@ header{
 .header-center{
   display:flex;
   align-items:center;
+  justify-content:center;  /* ✅ force center */
   gap:10px;
+  width:100%;
 }
 
 .logo-dot{
@@ -132,7 +134,15 @@ tr:first-child{
   font-weight:bold;
   background:var(--surface2);
 }
+
+header h1{
+  margin:0;
+  text-align:center;
+  width:100%;
+}
+  
 </style>
+  
 </head>
 
 <body>
