@@ -5,34 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Schedule Open Tracker</title>
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheetec;
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#fdf6ec;
   --surface:#fff8f0;
   --surface2:#feecd4;
   --border:#f0d5b0;
   --accent:#e8721a;
   --accent2:#c95a0a;
+  --accent3:#f5a623;
   --text:#2d1a06;
   --muted:#9a6b3c;
 }
 
+/* RESET */
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+/* BODY */
 body{
   background:var(--bg);
+  color:var(--text);
   font-family:'Syne',sans-serif;
-  margin:0;
 }
 
+/* MAIN */
 main{
-  max-width:900px;
+  max-width:700px;
   margin:0 auto;
-  padding:30px;
+  padding:40px 20px;
 }
 
+/* HEADER */
 header{
   border-bottom:2px solid var(--border);
   padding:20px;
   display:flex;
+  justify-content:center;
   align-items:center;
-  gap:10px;
+  position:relative;
 }
 
 .logo-dot{
@@ -40,22 +56,31 @@ header{
   height:10px;
   background:var(--accent);
   border-radius:50%;
+  margin-right:10px;
 }
 
+h1{
+  color:var(--accent2);
+}
+
+/* Right side text */
 .header-sub{
-  margin-left:auto;
+  position:absolute;
+  right:20px;
   font-size:12px;
   color:var(--muted);
 }
 
+/* CARDS */
 .card{
   background:var(--surface);
   border:1px solid var(--border);
-  border-radius:10px;
+  border-radius:12px;
   padding:25px;
-  margin-top:20px;
+  margin-top:25px;
 }
 
+/* CARD TITLE */
 .card-title{
   font-size:11px;
   letter-spacing:2px;
@@ -63,20 +88,30 @@ header{
   margin-bottom:15px;
 }
 
+/* DROP ZONE */
 #drop-zone{
-  border:2px dashed var(--border);
-  padding:40px;
+  border:2px dashed #e0b88c;
+  padding:50px;
   text-align:center;
-  border-radius:10px;
+  border-radius:12px;
+  background:#f7ecdd;
   cursor:pointer;
+  transition:0.2s;
 }
 
+#drop-zone:hover{
+  border-color:var(--accent);
+  background:rgba(232,114,26,0.05);
+}
+
+/* FILTER */
 .filter-row{
   display:flex;
-  gap:15px;
+  gap:20px;
   align-items:end;
 }
 
+/* FIELD */
 .field{
   display:flex;
   flex-direction:column;
@@ -88,21 +123,29 @@ header{
   color:var(--muted);
 }
 
+/* DROPDOWN */
 select{
   background:var(--surface2);
   border:1px solid var(--border);
   border-radius:8px;
-  padding:10px;
+  padding:12px;
+  width:220px;
   cursor:pointer;
 }
 
+/* BUTTON */
 button{
   background:var(--accent);
   color:white;
   border:none;
-  padding:10px 20px;
-  border-radius:8px;
+  padding:12px 25px;
+  border-radius:10px;
+  font-weight:600;
   cursor:pointer;
+}
+
+button:hover{
+  background:var(--accent2);
 }
 </style>
 
@@ -155,6 +198,7 @@ button{
 </main>
 
 <script>
+// ✅ YOUR JS — unchanged
 const times=[];
 for(let h=0;h<24;h++){
   for(let m of [0,30]){
