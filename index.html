@@ -1,118 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Schedule Tracker</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule Open Tracker</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#fdf6ec;
+  --surface:#fff8f0;
+  --surface2:#feecd4;
+  --border:#f0d5b0;
+  --accent:#e8721a;
+  --accent2:#c95a0a;
+  --text:#2d1a06;
+  --muted:#9a6b3c;
+}
+
+body{
+  background:var(--bg);
+  font-family:'Syne',sans-serif;
+  margin:0;
+}
+
+header{
+  display:flex;
+  gap:10px;
+  padding:20px;
+  border-bottom:2px solid var(--border);
+}
+
+.logo-dot{
+  width:10px;
+  height:10px;
+  background:var(--accent);
+  border-radius:50%;
+}
+
+.card{
+  background:var(--surface);
+  padding:20px;
+  margin:20px;
+  border-radius:10px;
+}
+
+#drop-zone{
+  border:2px dashed var(--border);
+  padding:40px;
+  text-align:center;
+  cursor:pointer;
+}
+
+#drop-zone.dragover{
+  border-color:var(--accent);
+}
+
+select{
+  cursor:pointer;
+  padding:10px;
+}
+
+button{
+  cursor:pointer;
+  padding:10px 20px;
+  background:var(--accent);
+  color:white;
+  border:none;
+}
+</style>
+
 </head>
+
 <body>
 
-  <header>
-    <h1>● Schedule Open Tracker</h1>
-    <p>Roster-matched · 30-min intervals</p>
-  </header>
+<header>
+  <span class="logo-dot"></span>
+  <h1>Schedule Open Tracker</h1>
+</header>
 
-  <main>
-    <section class="card">
-      <h3>01 / UPLOAD SCHEDULE CSV FILES</h3>
+<div class="card">
 
-      
-  <div class="upload-box" id="drop-area">
-    <label for="csvFile" class="custom-upload">
-      <div class="icon">📂</div>
-      <p><strong>Drop CSV files here, or click to browse</strong></p>
-      <span>CSV only • Columns: Date, Agent ID, Agent Name</span>
-    </label>
+  <h3>Upload CSV Files</h3>
 
-    <input type="file" id="csvFile" accept=".csv" hidden>
-    </div>
-      
-    <div id="output">
+  <div id="drop-zone">
+    <input type="file" id="file-input" accept=".csv" style="display:none;">
+    <div>📂 Drop CSV or Click</div>
   </div>
 
-    </section>
-    <section class="card">
-  <h3>02 / FILTER BY TIME RANGE</h3>
+</div>
 
-  <div class="filters">
-    <div>
-      <label>START TIME</label>
-      <select>
-        <option>12:00 AM</option>
-      </select>
-    </div>
+<div class="card">
 
-    <div>
-      <label>END TIME</label>
-      <select>
-        <option>9:00 PM</option>
-      </select>
-    </div>
+  <h3>Filter Time</h3>
 
-    <button>Apply Filter</button>
-  </div>
-</section>
-  </main>
-  
+  <select id="start"></select>
+  <select id="end"></select>
+  <button id="apply">Apply</button>
+
+</div>
+
+<div id="output"></div>
+
 <script>
-const dropArea = document.getElementById("drop-area");
-const fileInput = document.getElementById("csvFile");
 
-// Click upload still works
-fileInput.addEventListener("change", function(event) {
-  handleFile(event.target.files[0]);
-});
-
-// DRAG EVENTS
-dropArea.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  dropArea.style.background = "#f0d9b5";
-});
-
-dropArea.addEventListener("dragleave", () => {
-  dropArea.style.background = "#f7ecdd";
-});
-
-dropArea.addEventListener("drop", (e) => {
-  e.preventDefault();
-  dropArea.style.background = "#f7ecdd";
-
-  const file = e.dataTransfer.files[0];
-  handleFile(file);
-});
-
-// FILE PROCESSING FUNCTION
-function handleFile(file) {
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    const text = e.target.result;
-    const rows = text.split("\n");
-
-    let html = "<table border='1'>";
-
-    rows.forEach(row => {
-      html += "<tr>";
-
-      const cols = row.split(",");
-
-      cols.forEach(col => {
-        html += `<td>${col}</td>`;
-      });
-
-      html += "</tr>";
-    });
-
-    html += "</table>";
-
-    document.getElementById("output").innerHTML = html;
-  };
-
-  reader.readAsText(file);
+// dropdown values
+const times = [];
+for(let h=0; h<24; h++){
+  for(let m of [0,30]){
+    let ampm = h < 12 ? "AM" : "PM";
+    let hr = h % 12 || 12;
+    let min = m===0 ? "00":"30";
+    times.push(`${hr}:${min} ${ampm}`);
+  }
 }
-</script>
-  
-</body>
-</html>
+
+const start = document.getElementById("start");
