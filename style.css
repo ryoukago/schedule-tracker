@@ -94,6 +94,7 @@ main {
   border-radius: 8px;
   border: 1px solid #d5a673;
   background: #f6efe6;
+  cursor: pointer;
 }
 
 /* Button */
