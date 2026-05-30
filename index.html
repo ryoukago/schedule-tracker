@@ -381,7 +381,6 @@ function renderDashboard(list, total, startVal, endVal){
           <td>NAME</td>
           <td>ACTIVITY</td>
           <td>SCHEDULED</td>
-          <td>ACTUAL</td>
         </tr>
     `;
 
@@ -454,7 +453,7 @@ function copySelected(){
 // ✅ EXPORT CSV
 function exportCSV(){
 
-  let csv = "EID,NAME,ACTIVITY,START,END\n";
+  let csv = "EID,NAME,ACTIVITY,SCHEDULED\n";
 
   document.querySelectorAll("table tr").forEach((row,i)=>{
     if(i === 0) return;
@@ -466,7 +465,6 @@ function exportCSV(){
       cols[3]?.innerText,
       cols[4]?.innerText,
       cols[5]?.innerText,
-      cols[6]?.innerText
     ].join(",") + "\n";
   });
 
