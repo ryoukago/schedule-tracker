@@ -45,7 +45,6 @@ header{
   align-items:center;
   justify-content:center;  /* ✅ force center */
   gap:10px;
-  width:100%;
 }
 
 .logo-dot{
@@ -140,6 +139,12 @@ header h1{
   text-align:center;
   width:100%;
 }
+
+.header-inner{
+  max-width:900px;
+  margin:0 auto;
+  width:100%;
+}
   
 </style>
   
@@ -148,9 +153,11 @@ header h1{
 <body>
 
 <header>
-  <div class="header-center">
-    <span class="logo-dot"></span>
-    <h1>Schedule Open Tracker</h1>
+  <div class="header-inner">
+    <div class="header-center">
+      <span class="logo-dot"></span>
+      <h1>Schedule Open Tracker</h1>
+    </div>
   </div>
 </header>
 
