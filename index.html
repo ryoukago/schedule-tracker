@@ -349,10 +349,10 @@ function applyFilter(){
     return;
   }
 console.log(Object.keys(data[0]));
-  console.log([...new Set(data.map(r => r["Scheduled Activities"]))]);
+  console.log([...new Set(data.map(r => r["Scheduled Activity"]))]);
   
     let result = data.filter(row => {
-  const act = (row["Scheduled Activities"] || "").toLowerCase();
+  const act = (row["Scheduled Activity"] || "").toLowerCase();
 
   return act.includes("fax") || 
          act.includes("crg") || 
@@ -363,7 +363,7 @@ console.log(Object.keys(data[0]));
 let mapped = result.map(row => ({
   EID: row["Agent ID"],
   Name: row["Agent Name"],
-  Activity: row["Scheduled Activities"],
+  Activity: row["Scheduled Activity"],
   ScheduledTime: row["Scheduled Time"],
 }));
 
