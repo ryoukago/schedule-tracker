@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Schedule Open Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
 <style>
 :root{
   --bg:#fdf6ec;
@@ -23,16 +25,15 @@ body{
   margin:0;
 }
 
-/* CENTER LAYOUT */
-main {
-  max-width: 1100px;
-  margin: 0 auto;
+main{
+  max-width:900px;
+  margin:0 auto;
+  padding:30px;
 }
 
-/* HEADER */
 header{
   border-bottom:2px solid var(--border);
-  padding:20px 40px;
+  padding:20px;
   display:flex;
   align-items:center;
   gap:10px;
@@ -45,48 +46,42 @@ header{
   border-radius:50%;
 }
 
-/* CARD */
 .card{
   background:var(--surface);
   border:1px solid var(--border);
   border-radius:10px;
   padding:25px;
-  margin:30px 0;
+  margin-top:20px;
 }
 
-/* DROP ZONE */
+.card-title{
+  font-size:11px;
+  letter-spacing:2px;
+  color:var(--muted);
+  margin-bottom:15px;
+}
+
 #drop-zone{
   border:2px dashed var(--border);
-  padding:50px;
+  padding:40px;
   text-align:center;
   border-radius:10px;
   cursor:pointer;
-  transition:0.2s;
 }
 
-#drop-zone:hover,
-#drop-zone.dragover{
-  border-color:var(--accent);
-  background:rgba(232,114,26,0.05);
-}
-
-/* FILTER ROW */
-.filter-row {
+.filter-row{
   display:flex;
   gap:15px;
   align-items:center;
 }
 
-/* SELECT */
 select{
   background:var(--surface2);
   border:1px solid var(--border);
   border-radius:8px;
   padding:10px;
-  cursor:pointer;
 }
 
-/* BUTTON */
 button{
   background:var(--accent);
   color:white;
@@ -99,8 +94,38 @@ button{
 button:hover{
   background:var(--accent2);
 }
-</style>
 
+/* ✅ FILE CHIP */
+.file-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:8px;
+  font-size:12px;
+  margin-top:10px;
+}
+
+/* ✅ TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+td{
+  border:1px solid var(--border);
+  padding:8px;
+  font-size:13px;
+}
+
+tr:first-child{
+  font-weight:bold;
+  background:var(--surface2);
+}
+</style>
 </head>
 
 <body>
@@ -112,25 +137,29 @@ button:hover{
 
 <main>
 
+<!-- ✅ UPLOAD -->
 <div class="card">
-  <h3>Upload CSV Files</h3>
+  <div class="card-title">01 / UPLOAD CSV FILES</div>
 
   <div id="drop-zone">
-    <input type="file" id="file-input" accept=".csv" style="display:none;">
+    <input type="file" id="file-input" accept=".csv" hidden>
 
     <div style="font-size:30px;">📂</div>
     <div style="font-weight:700; margin-top:10px;">
       Drop CSV files here or click to browse
     </div>
-    <div style="font-size:12px; color:#9a6b3c;">
+    <div style="font-size:12px; color:var(--muted);">
       CSV only · Multiple files supported
     </div>
-
   </div>
+
+  <!-- ✅ FILE CHIP AREA -->
+  <div id="file-list"></div>
 </div>
 
+<!-- ✅ FILTER -->
 <div class="card">
-  <h3>Filter Time</h3>
+  <div class="card-title">02 / FILTER TIME</div>
 
   <div class="filter-row">
     <select id="start"></select>
@@ -139,13 +168,14 @@ button:hover{
   </div>
 </div>
 
+<!-- ✅ RESULTS -->
 <div id="output"></div>
 
 </main>
 
 <script>
 
-// dropdown values
+// ✅ dropdown
 const times = [];
 for(let h=0; h<24; h++){
   for(let m of [0,30]){
@@ -164,7 +194,7 @@ times.forEach((t,i)=>{
   end.add(new Option(t,i));
 });
 
-// drag drop
+// ✅ upload logic
 const drop = document.getElementById("drop-zone");
 const input = document.getElementById("file-input");
 
@@ -172,16 +202,10 @@ drop.addEventListener("click",()=>input.click());
 
 drop.addEventListener("dragover",(e)=>{
   e.preventDefault();
-  drop.classList.add("dragover");
-});
-
-drop.addEventListener("dragleave",()=>{
-  drop.classList.remove("dragover");
 });
 
 drop.addEventListener("drop",(e)=>{
   e.preventDefault();
-  drop.classList.remove("dragover");
   handle(e.dataTransfer.files[0]);
 });
 
@@ -189,31 +213,54 @@ input.addEventListener("change",(e)=>{
   handle(e.target.files[0]);
 });
 
+// ✅ FILE HANDLE
 function handle(file){
   if(!file) return;
+
+  // ✅ show file chip
+  document.getElementById("file-list").innerHTML = `
+    <div class="file-chip">
+      📄 ${file.name}
+      <span style="cursor:pointer;" onclick="removeFile()">✕</span>
+    </div>
+  `;
 
   const reader = new FileReader();
 
   reader.onload = function(e){
-    const text = e.target.result;
-    const rows = text.split("\n");
-
-    let html = "<table border='1'>";
-
-    rows.forEach(r=>{
-      html += "<tr>";
-      r.split(",").forEach(c=>{
-        html += `<td>${c}</td>`;
-      });
-      html += "</tr>";
-    });
-
-    html += "</table>";
-
-    document.getElementById("output").innerHTML = html;
+    displayCSV(e.target.result);
   };
 
   reader.readAsText(file);
+}
+
+function removeFile(){
+  document.getElementById("file-list").innerHTML = "";
+  document.getElementById("output").innerHTML = "";
+}
+
+// ✅ DISPLAY CSV
+function displayCSV(text){
+
+  const rows = text.split("\n");
+
+  let html = `
+    <div class="card">
+      <div class="card-title">03 / RESULTS</div>
+      <table>
+  `;
+
+  rows.forEach(r=>{
+    html += "<tr>";
+    r.split(",").forEach(c=>{
+      html += `<td>${c}</td>`;
+    });
+    html += "</tr>";
+  });
+
+  html += "</table></div>";
+
+  document.getElementById("output").innerHTML = html;
 }
 
 </script>
