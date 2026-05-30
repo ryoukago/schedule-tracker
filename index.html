@@ -55,9 +55,34 @@
   </main>
   
 <script>
-document.getElementById("csvFile").addEventListener("change", function(event) {
-  const file = event.target.files[0];
+const dropArea = document.getElementById("drop-area");
+const fileInput = document.getElementById("csvFile");
 
+// Click upload still works
+fileInput.addEventListener("change", function(event) {
+  handleFile(event.target.files[0]);
+});
+
+// DRAG EVENTS
+dropArea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropArea.style.background = "#f0d9b5";
+});
+
+dropArea.addEventListener("dragleave", () => {
+  dropArea.style.background = "#f7ecdd";
+});
+
+dropArea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropArea.style.background = "#f7ecdd";
+
+  const file = e.dataTransfer.files[0];
+  handleFile(file);
+});
+
+// FILE PROCESSING FUNCTION
+function handleFile(file) {
   if (!file) return;
 
   const reader = new FileReader();
@@ -86,7 +111,7 @@ document.getElementById("csvFile").addEventListener("change", function(event) {
   };
 
   reader.readAsText(file);
-});
+}
 </script>
   
 </body>
