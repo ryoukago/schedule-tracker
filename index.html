@@ -50,6 +50,41 @@
   </div>
 </section>
   </main>
+  
+<script>
+document.getElementById("csvFile").addEventListener("change", function(event) {
+  const file = event.target.files[0];
 
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const rows = text.split("\n");
+
+    let html = "<table border='1'>";
+
+    rows.forEach(row => {
+      html += "<tr>";
+
+      const cols = row.split(",");
+
+      cols.forEach(col => {
+        html += `<td>${col}</td>`;
+      });
+
+      html += "</tr>";
+    });
+
+    html += "</table>";
+
+    document.getElementById("output").innerHTML = html;
+  };
+
+  reader.readAsText(file);
+});
+</script>
+  
 </body>
 </html>
