@@ -299,10 +299,10 @@ function applyFilter(){
     let result = data.filter(row => {
   const act = row["Scheduled Activities"] || "";
 
-  return act.includes("Fax") || 
-         act.includes("CRG") || 
-         act.includes("OGS") || 
-         act.includes("Time off");
+  return act.includes("fax") || 
+         act.includes("crg") || 
+         act.includes("ogs") || 
+         act.includes("time off");
 });
 
 let mapped = result.map(row => ({
