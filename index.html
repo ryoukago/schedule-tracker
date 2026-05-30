@@ -17,9 +17,15 @@
       <h3>01 / UPLOAD SCHEDULE CSV FILES</h3>
 
       <div class="upload-box">
-        <div class="icon">📂</div>
-        <p>Drop CSV files here, or click to browse</p>
-        <span>Multiple files supported · Columns: Date, Agent ID, Agent Name</span>
+        <label for="csvFile" class="custom-upload">
+          <div class="icon">📂</div>
+          <p><strong>Drop CSV files here, or click to browse</strong></p>
+          <span>CSV only • Columns: Date, Agent ID, Agent Name</span>
+        </label>
+
+        <input type="file" id="csvFile" acceept=".csv" hidden>
+      </div>
+      <div id="output">
       </div>
     </section>
     <section class="card">
