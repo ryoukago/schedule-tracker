@@ -293,7 +293,7 @@ function applyFilter(){
     alert("Upload CSV first");
     return;
   }
-
+console.log(Object.keys(data[0]));
   console.log([...new Set(data.map(r => r["Scheduled Activities"]))]);
   
     let result = data.filter(row => {
